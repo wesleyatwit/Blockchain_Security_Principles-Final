@@ -3,9 +3,9 @@ import time
 import random
 import string
 
-
 class Block:
     def __init__(self, index, previous_hash, timestamp, data, hash, sender=None, receiver=None):
+        # Constructor for the Block class
         self.index = index
         self.previous_hash = previous_hash
         self.timestamp = timestamp
@@ -14,25 +14,27 @@ class Block:
         self.sender = sender
         self.receiver = receiver
 
-
 class Blockchain:
     def __init__(self):
+        # Constructor for the Blockchain class
         self.chain = []
         self.create_genesis_block()
 
     def create_genesis_block(self):
+        # Creates the initial block in the blockchain (Genesis block)
         genesis_block = Block(0, "0", time.time(), "Genesis Block", self.calculate_hash(0))
         self.chain.append(genesis_block)
 
     def calculate_hash(self, index):
+        # Calculates the hash of a block based on its index
         if 0 <= index < len(self.chain):
             block = self.chain[index]
             block_info = str(block.index) + str(block.previous_hash) + str(block.timestamp) + str(block.data)
             return hashlib.sha256(block_info.encode()).hexdigest()
         return None
 
-
     def add_block(self, sender, receiver, amount):
+        # Adds a new block to the blockchain with a transaction
         index = len(self.chain)
         previous_hash = self.calculate_hash(index - 1)
         timestamp = time.time()
@@ -42,6 +44,7 @@ class Blockchain:
         self.chain.append(new_block)
 
     def display_chain(self, block_index=None):
+        # Displays information about a specific block or the latest block in the blockchain
         if block_index is None:
             block_index = len(self.chain) - 1
 
@@ -53,18 +56,17 @@ class Blockchain:
         print(f"Hash: {block.hash}")
         print()
 
-
 class Wallet:
     def __init__(self, userName, walletBalance=50):
+        # Constructor for the Wallet class
         self.userName = userName
         self.walletID = "0x" + ''.join(random.choices(string.ascii_letters + string.digits, k=62))
         self.walletBalance = walletBalance
 
-
 def main():
     user_blockchain = Blockchain()
     existing_wallets = set()
-    
+
     print("Enter a command ('user_creation', 'commit_transaction', 'check_balance', 'display_chain', 'exit_0'):")
 
     while True:
@@ -74,6 +76,7 @@ def main():
             break
 
         elif command == 'user_creation':
+            # Creates a new user with a wallet and adds it to the set of existing wallets
             user_name = input("Enter your username: ")
             initial_balance = float(input("Enter your initial balance of WesleyCoin: "))
             user_wallet = Wallet(user_name, initial_balance)
@@ -81,6 +84,7 @@ def main():
             print(f"Wallet created for {user_wallet.userName}. Initial balance: {user_wallet.walletBalance} WesleyCoin.")
 
         elif command == 'commit_transaction':
+            # Initiates a new transaction by selecting a sender, receiver, and amount
             print("Make a Transaction:")
             
             # Display available senders
@@ -115,15 +119,15 @@ def main():
                 print("Insufficient funds. Please try a smaller amount.")
                 continue
 
+            # Update wallet balances and add a new block to the blockchain
             sender_wallet.walletBalance -= transaction_amount
             receiver_wallet.walletBalance += transaction_amount
-
             user_blockchain.add_block(sender_wallet.userName, receiver_wallet.userName, transaction_amount)
             print("Transaction committed. Current block of the blockchain:")
             user_blockchain.display_chain()
 
-
         elif command == 'check_balance':
+            # Checks the balance of a selected wallet
             print("Choose a wallet to check balance:")
 
             # Display available wallets
@@ -141,11 +145,11 @@ def main():
                 continue
 
         elif command == 'display_chain':
+            # Displays the current state of the blockchain
             print("Current block of the blockchain:")
             user_blockchain.display_chain()
 
         print("\nEnter a command ('user_creation', 'commit_transaction', 'check_balance', 'display_chain', 'exit_0'): ")
-
 
 if __name__ == "__main__":
     main()
